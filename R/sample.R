@@ -9,13 +9,14 @@
 #' @return
 #' @export
 #' @importFrom rlang .data
+#' @importFrom magrittr %>%
 #' @examples
 get_sample_statistics <- function(.x, pnum = 1, panel = NA, use_na = TRUE,
                                        use_percent = FALSE) {
   stopifnot(class(.x) %in% c("ExpressionSet"))
 
 
-  s <- get_sample(.x, pnum, panel, use_na) |>
+  s <- get_sample(.x, pnum, panel, use_na) %>%
     # Join with summary information to create the percent
     #  dplyr::filter(`Protein Symbol` %in% c("ACTA2","ALB","ACTB","HBA1","HBB","LMNA")) %>%
     # NB: FIX THIS ABOVE.
@@ -25,11 +26,11 @@ get_sample_statistics <- function(.x, pnum = 1, panel = NA, use_na = TRUE,
   # Old code, to use the percent of total expression not quantile.
   if ( use_percent ) {
     # Then calculate the individual expression out of max expression.
-    s<- s |> dplyr::mutate(Percent = .data$Patient / .data$MaxExpression)
+    s<- s %>% dplyr::mutate(Percent = .data$Patient / .data$MaxExpression)
 
   } else {
     # New code, calculate the percentile of the specific patient's measurement.
-    s <- s |> dplyr::mutate(Percent = purrr::map2_dbl(.data$ECDF, .data$Patient, ~.x(.y)))
+    s <- s %>% dplyr::mutate(Percent = purrr::map2_dbl(.data$ECDF, .data$Patient, ~.x(.y)))
   }
 
 
@@ -51,14 +52,15 @@ get_sample_statistics <- function(.x, pnum = 1, panel = NA, use_na = TRUE,
 #' @return
 #' @export
 #' @importFrom rlang .data
+#' @importFrom magrittr %>%
 #' @examples
 get_sample <- function(.x, pnum = 1, panel = NA, use_na = TRUE) {
   stopifnot(class(.x) %in% c("ExpressionSet"))
 
   # Extract specific sample (either the value or name, shouldn't matter)
-  res <- Biobase::exprs(.x)[,pnum]|>
+  res <- Biobase::exprs(.x)[,pnum]%>%
     # Turn into tibble for filtering
-    tibble::enframe(name = "Protein_Peptide", value = "Patient") |>
+    tibble::enframe(name = "Protein_Peptide", value = "Patient") %>%
     # Add assay annotation
     dplyr::left_join(
       Biobase::fData(.x),
@@ -67,12 +69,12 @@ get_sample <- function(.x, pnum = 1, panel = NA, use_na = TRUE) {
 
   # Filter by panel if requested
   if (!is.na(panel)) {
-    res<- res |> dplyr::filter(.data$Subcategory %in% panel)
+    res<- res %>% dplyr::filter(.data$Subcategory %in% panel)
   }
 
   # Some will be NA, use 0 in this instance (if requested)
   if ( ! use_na ) {
-    res <- res |> tidyr::replace_na(list(Patient = 0))
+    res <- res %>% tidyr::replace_na(list(Patient = 0))
 
   }
 

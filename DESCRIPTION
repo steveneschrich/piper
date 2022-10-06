@@ -21,6 +21,7 @@ Imports:
     dplyr,
     ggplot2,
     ggradar,
+    magrittr,
     patchwork,
     purrr,
     rlang,

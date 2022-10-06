@@ -6,22 +6,22 @@
 #'
 #' @return
 #' @export
-#'
+#' @importFrom magrittr %>%
 #' @examples
 plot_lollipop <- function(.x, pnum = 1, panel = "Tissue QC") {
   if ( is.character(pnum))
     pnum <- which(Biobase::sampleNames(.x) %in% pnum)
 
   patient_name <- Biobase::sampleNames(.x)[pnum]
-  x <- Biobase::exprs(.x) |>
-    as.data.frame() |>
-    tibble::rownames_to_column("Protein_Peptide") |>
+  x <- Biobase::exprs(.x) %>%
+    as.data.frame() %>%
+    tibble::rownames_to_column("Protein_Peptide") %>%
     tidyr::pivot_longer(
       c(dplyr::everything(),-.data$Protein_Peptide),
       names_to="sample",
       values_to="expression"
-    ) |>
-    dplyr::group_by(.data$Protein_Peptide) |>
+    ) %>%
+    dplyr::group_by(.data$Protein_Peptide) %>%
     dplyr::summarize(
       max = max(.data$expression, na.rm=T),
       min = min(.data$expression, na.rm=T),
@@ -34,32 +34,32 @@ plot_lollipop <- function(.x, pnum = 1, panel = "Tissue QC") {
     paste0(x[,2],"_",x[,1])
   }
 
-  sample <- Biobase::exprs(.x)[,pnum] |>
-    tibble::enframe(name="Protein_Peptide", value="Patient") |>
+  sample <- Biobase::exprs(.x)[,pnum] %>%
+    tibble::enframe(name="Protein_Peptide", value="Patient") %>%
     dplyr::left_join(Biobase::fData(.x),
                      by=c("Protein_Peptide"="Protein_Peptide"))
 
   # The plotting data is the combination of x and the
   # sample data, with the "sample_quantile" combining
   # data from both.
-  gdf <- sample |>
-    dplyr::left_join(x, by=c("Protein_Peptide"="Protein_Peptide")) |>
+  gdf <- sample %>%
+    dplyr::left_join(x, by=c("Protein_Peptide"="Protein_Peptide")) %>%
     dplyr::mutate(
       sample_quantile =
         purrr::map2_dbl(.data$ecdf_fun, .data$Patient, ~.x(.y)
         )
-    ) |>
+    ) %>%
     dplyr::mutate(
       protein_label = rev_label(.data$Protein_Peptide),
       Patient = ifelse(is.na(.data$Patient), 0, .data$Patient)
-    ) |>
+    ) %>%
     # Note sure why this is here
-    #dplyr::filter(Subcategory %in% c("Cancer Antigens","CDK","MAPK","RTK","PI3K/AKT/MTOR","Tissue QC")) |>
+    #dplyr::filter(Subcategory %in% c("Cancer Antigens","CDK","MAPK","RTK","PI3K/AKT/MTOR","Tissue QC")) %>%
     dplyr::mutate(Protein_Peptide=stringr::str_replace_all(.data$Protein_Peptide, "_","\n"))
 
   # Tmp filter
 
-  gdf <- gdf |> dplyr::filter(.data$Subcategory==panel)
+  gdf <- gdf %>% dplyr::filter(.data$Subcategory==panel)
   #dplyr::slice(c(3,5,4,7,6,2,1)) %>%
   # dplyr::mutate(Protein_Peptide = forcats::fct_inorder(Protein_Peptide))
 

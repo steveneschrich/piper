@@ -5,7 +5,7 @@
 #'
 #' @return
 #' @export
-#'
+#' @importFrom magrittr %>%
 #' @examples
 plot_subway <- function(.x, pnum=1) {
 
@@ -33,7 +33,7 @@ plot_subway <- function(.x, pnum=1) {
     # Molecular Phenotyping (Path)
     # Cancer Signaling (Oncologist)
     # Tumor-Immune Microenvironment (Immunologist)
-  ) |>
+  ) %>%
     dplyr::mutate(name = stringr::str_wrap(name, 10))
 
   df_lines <- tibble::tribble(

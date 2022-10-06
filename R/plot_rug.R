@@ -10,7 +10,7 @@
 #'
 #' @return A [patchwork::patchwork()] panel of graphs representing a rug plot.
 #' @export
-#'
+#' @importFrom magrittr %>%
 #' @examples
 #' \dontrun{
 #' plot_rug(lscc, pnum = 1, panel = "Tissue QC")
@@ -24,8 +24,8 @@ plot_rug <- function(.x, pnum=1, panel="Tissue QC") {
   min_peptide_level <- apply(Biobase::exprs(.x), 1, min,na.rm=T)-0.1
 
   sample <- Biobase::exprs(.x)[,pnum]
-  sample <- ifelse(is.na(sample), min_peptide_level, sample) |>
-    tibble::enframe(name="Protein_Peptide", value="Patient") |>
+  sample <- ifelse(is.na(sample), min_peptide_level, sample) %>%
+    tibble::enframe(name="Protein_Peptide", value="Patient") %>%
     dplyr::left_join(Biobase::fData(.x),
                      by=c("Protein_Peptide"="Protein_Peptide"))
 

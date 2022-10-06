@@ -7,11 +7,12 @@
 #' @return
 #' @export
 #' @importFrom rlang .data
+#' @importFrom magrittr %>%
 #' @examples
 panel_target_list <- function(.x, panel="Tissue QC") {
   stopifnot("ExpressionSet" %in% class(.x))
 
-  Biobase::fData(.x) |>
+  Biobase::fData(.x) %>%
     dplyr::filter(.data$Subcategory %in% panel)
 }
 

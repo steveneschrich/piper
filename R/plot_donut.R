@@ -7,6 +7,7 @@
 #' @return
 #' @export
 #' @importFrom rlang .data
+#' @importFrom magrittr %>%
 #'
 #' @examples
 plot_donut <- function(.x, pnum = 1, panel = "Tissue QC") {
@@ -15,9 +16,9 @@ plot_donut <- function(.x, pnum = 1, panel = "Tissue QC") {
     pnum <- which(Biobase::sampleNames(.x) %in% pnum)
 
 
-  qc <- get_sample(.x, pnum, use_na = FALSE) |>
+  qc <- get_sample(.x, pnum, use_na = FALSE) %>%
     # Extract out the panel of interest.
-    dplyr::filter(.data$Subcategory %in% panel) |>
+    dplyr::filter(.data$Subcategory %in% panel) %>%
     # Clean assay name
     dplyr::mutate(Protein_Peptide = clean_assay_name(.data$Protein_Peptide))
 
