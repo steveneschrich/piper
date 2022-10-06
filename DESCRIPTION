@@ -1,6 +1,6 @@
 Package: piper
 Title: Visualizations for targeted proteomics panels
-Version: 1.0.0
+Version: 1.1.0
 Authors@R: 
     person("Steven", "Eschrich", , "Steven.Eschrich@moffitt.org", role = c("aut", "cre"),
            comment = c(ORCID = "YOUR-ORCID-ID"))
