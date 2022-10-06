@@ -55,8 +55,8 @@ plot_subway <- function(.x, pnum=1) {
   )
 
   cpalette <- c(
-    "Immunologist's Panel"="#548235",
-    "Oncologist's Panel"="#bf9000",
+    "Immunologist's Panel"="#bf9000",
+    "Oncologist's Panel"="#548235",
     "Molecular Pathologist's Panel"="#2e75b6"
   )
   p<-ggplot2::ggplot(df, ggplot2::aes(x=x,y=y,col=panel, label = name)) +
