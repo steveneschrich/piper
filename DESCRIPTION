@@ -1,0 +1,31 @@
+Package: piper
+Title: Visualizations for targeted proteomics panels
+Version: 0.0.0.9000
+Authors@R: 
+    person("Steven", "Eschrich", , "Steven.Eschrich@moffitt.org", role = c("aut", "cre"),
+           comment = c(ORCID = "YOUR-ORCID-ID"))
+    person("John", "Koomen", , "John.Koomen@moffitt.org", role = c("aut","cre"), 
+          comment = c(ORCID = "YOUR-ORCID-ID"))
+Description: Targeted proteomics panels can be used for clinical and translational
+ endpoints in cancer. Multi-dimensional data remains challenging to interpret
+ for clinical practice. This library is a collection of visualizations, typically
+ using ggplot or similar libraries, that may be appropriate for representing this
+ data.
+License: MIT + file LICENSE
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.2.1
+Imports: 
+    Biobase,
+    ComplexHeatmap,
+    dplyr,
+    ggplot2,
+    ggradar,
+    patchwork,
+    purrr,
+    rlang,
+    stats,
+    stringr,
+    tibble,
+    tidyr,
+    tidyselect
