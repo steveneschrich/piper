@@ -13,7 +13,11 @@
 #' @importFrom rlang .data
 #' @importFrom magrittr %>%
 #' @examples
-plot_spider <- function(.x, pnum = 1, panel = "Tissue QC", use_percent = FALSE, peptide_list=NULL) {
+plot_radar <- function(.x, pnum = 1,
+                        panel = "Tissue QC",
+                        use_percent = FALSE,
+                        peptide_list=NULL,
+                        axis.label.size=5) {
 
   stopifnot(class(.x) %in% c("ExpressionSet"))
 
@@ -37,7 +41,7 @@ plot_spider <- function(.x, pnum = 1, panel = "Tissue QC", use_percent = FALSE, 
     dplyr::mutate(Patient = pnum) %>%
     dplyr::select(.data$Patient, dplyr::everything())
 
-  ggradar::ggradar(qc, axis.label.size=3) +
+  ggradar::ggradar(qc, axis.label.size=axis.label.size) +
     ggplot2::ggtitle(panel)
 
 }
