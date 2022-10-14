@@ -17,7 +17,7 @@ plot_radar <- function(.x, pnum = 1,
                         panel = "Tissue QC",
                         use_percent = FALSE,
                         peptide_list=NULL,
-                        axis.label.size=5) {
+                        axis.label.size=4) {
 
   stopifnot(class(.x) %in% c("ExpressionSet"))
 
