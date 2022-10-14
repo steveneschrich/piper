@@ -12,8 +12,7 @@
 panel_target_list <- function(.x, panel="Tissue QC") {
   stopifnot("ExpressionSet" %in% class(.x))
 
-  Biobase::fData(.x) %>%
-    dplyr::filter(.data$Subcategory %in% panel)
+  dplyr::filter( Biobase::fData(.x), .data$Subcategory %in% panel)
 }
 
 #' Title
