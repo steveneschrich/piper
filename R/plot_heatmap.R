@@ -46,16 +46,16 @@ plot_heatmap<-function(.x, pnum=1, panel="Tissue QC") {
 
   ca <- ComplexHeatmap::columnAnnotation(
 
-    subtype = .x$subtype.y,
-    laterality = .x$laterality_combined,
+    subtype = .x$subtype,
+    laterality = .x$laterality,
     # grade = lscc$Grade.or.Differentiation.Conformed...CAP,
-    P53 = .x$TP53,
+    #P53 = .x$TP53,
     annotation_name_gp = grid::gpar(fontsize= 8),
     col = list(
       "subtype" = c("Inflamed" = "red3", "Mixed"="purple", "Redox"="orange"),
       "laterality" = c("Left"="darkgrey","Right"="snow2"),
       # "grade"= c("1"="green","2"="lightgreen","3"="red3","X"="gray"),
-      "P53"=c("mut"="red","trunc"="black","wt"="lightgreen")
+      #"P53"=c("mut"="red","trunc"="black","wt"="lightgreen")
     )
 
   )
