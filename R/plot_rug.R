@@ -15,32 +15,48 @@
 #' \dontrun{
 #' plot_rug(lscc, pnum = 1, panel = "Tissue QC")
 #' }
-plot_rug <- function(.x, pnum=1, panel="Tissue QC") {
-  if ( is.character(pnum))
-    pnum <- which(Biobase::sampleNames(.x) %in% pnum)
+plot_rug <- function(patient, reference,  panel=NULL) {
+  # Checking input parameters
+  assertthat::assert_that(is(reference, "SummarizedExperiment"))
+  assertthat::assert_that(is(patient, "SummarizedExperiment"))
+  assertthat::assert_that(nrow(patient) == nrow(reference))
 
-  ip <- which(Biobase::fData(.x)$Subcategory == panel)
+  # Handle the panel input
+  if (is.null(panel))
+    panel <- list("Random"=sample(rownames(reference),5))
+  assertthat::assert_that(is.list(panel))
+  assertthat::assert_that(length(panel[[1]])>0)
+  assertthat::assert_that(all(is.numeric(panel[[1]])) || all(panel[[1]] %in% rownames(reference)))
 
-  min_peptide_level <- apply(Biobase::exprs(.x), 1, min,na.rm=T)-0.1
+  # Panel: Select the specific panel to plot
+  markers <- match_markers(panel[[1]], reference)
+  panel_name <- names(panel)[1]
 
-  sample <- Biobase::exprs(.x)[,pnum]
-  sample <- ifelse(is.na(sample), min_peptide_level, sample) %>%
-    tibble::enframe(name="Protein_Peptide", value="Patient") %>%
-    dplyr::left_join(Biobase::fData(.x),
-                     by=c("Protein_Peptide"="Protein_Peptide"))
+  # Subset the patient/reference data
+  patient <- patient[markers,]
+  reference <- reference[markers,]
 
-  pl <- sapply(ip, function(n) {
+  # Statistics: We plot the percent of max abundance in the radar plot.
+  SummarizedExperiment::assays(patient)$abundance <- context_floored_markers(patient, reference)
 
-    mydf <- data.frame(x=tidyr::replace_na(Biobase::exprs(.x)[n,]),0)
+
+  sample <- SummarizedExperiment::assays(patient)$abundance |>
+    tibble::as_tibble(rownames="Protein_Peptide") |>
+    magrittr::set_colnames(c("Protein_Peptide","Patient")) |>
+    tibble::deframe()
+
+  pl <- sapply(names(sample), function(n) {
+
+    mydf <- data.frame(x=tidyr::replace_na(SummarizedExperiment::assay(reference)[n,],0))
     p <- ggplot2::ggplot(mydf,ggplot2::aes(x=x)) +
       ggplot2::geom_rug(length=grid::unit(1,"npc")) +
       ggplot2::coord_cartesian(ylim=c(0,1),clip = 'off') +
 
-      ggplot2::geom_point(ggplot2::aes(x=sample$Patient[n],y=c(-0.01)),shape=24, fill="red",size=4) +
-      ggplot2::geom_point(ggplot2::aes(x=sample$Patient[n],y=c(1.01)), shape=25,
+      ggplot2::geom_point(ggplot2::aes(x=sample[n],y=c(-0.01)),shape=24, fill="red",size=4) +
+      ggplot2::geom_point(ggplot2::aes(x=sample[n],y=c(1.01)), shape=25,
                           fill="red",size=4) +
       ggplot2::xlab("") +
-      ggplot2::ylab(Biobase::featureNames(.x)[n]) +
+      ggplot2::ylab(n) +
       ggplot2::theme_minimal() +
       ggplot2::theme(panel.background=ggplot2::element_rect(),
                      panel.grid = ggplot2::element_blank(),
@@ -52,7 +68,7 @@ plot_rug <- function(.x, pnum=1, panel="Tissue QC") {
 
   plot_panel <- patchwork::wrap_plots(pl,ncol=1) +
     patchwork::plot_annotation(
-      title = panel,
+      title = panel_name,
       theme = ggplot2::theme(plot.title = ggplot2::element_text(size = 16, face="bold"),
                              plot.background=ggplot2::element_rect(size=2, color="black")))
 

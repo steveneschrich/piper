@@ -10,19 +10,36 @@
 #' @importFrom magrittr %>%
 #'
 #' @examples
-plot_donut <- function(.x, pnum = 1, panel = "Tissue QC") {
+plot_donut <- function(patient, reference,  panel=NULL) {
+  # Checking input parameters
+  assertthat::assert_that(is(reference, "SummarizedExperiment"))
+  assertthat::assert_that(is(patient, "SummarizedExperiment"))
+  assertthat::assert_that(nrow(patient) == nrow(reference))
 
-  if ( is.character(pnum))
-    pnum <- which(Biobase::sampleNames(.x) %in% pnum)
+  # Handle the panel input
+  if (is.null(panel))
+    panel <- list("Random"=sample(rownames(reference),5))
+  assertthat::assert_that(is.list(panel))
+  assertthat::assert_that(length(panel[[1]])>0)
+  assertthat::assert_that(all(is.numeric(panel[[1]])) || all(panel[[1]] %in% rownames(reference)))
+
+  # Panel: Select the specific panel to plot
+  markers <- match_markers(panel[[1]], reference)
+  panel_name <- names(panel)[1]
+
+  # Subset the patient/reference data
+  patient <- patient[markers,]
+  reference <- reference[markers,]
+
+  # Statistics: We plot the percent of max abundance in the radar plot.
+  SummarizedExperiment::assays(patient)$abundance <- context_zero_markers(patient)
+
+  sample <- SummarizedExperiment::assays(patient)$abundance |>
+    tibble::as_tibble(rownames="Protein_Peptide") |>
+    magrittr::set_colnames(c("Protein_Peptide","Patient"))
 
 
-  qc <- get_sample(.x, pnum, use_na = FALSE) %>%
-    # Extract out the panel of interest.
-    dplyr::filter(.data$Subcategory %in% panel) %>%
-    # Clean assay name
-    dplyr::mutate(Protein_Peptide = clean_assay_name(.data$Protein_Peptide))
-
-  ggplot2::ggplot(qc, ggplot2::aes(x=1, y=Patient, label=Protein_Peptide, fill=Protein_Peptide)) +
+  ggplot2::ggplot(sample, ggplot2::aes(x=1, y=Patient, label=Protein_Peptide, fill=Protein_Peptide)) +
     ggplot2::geom_col() +
     ggplot2::coord_polar(theta="y") +
     #geom_text(
@@ -40,7 +57,7 @@ plot_donut <- function(.x, pnum = 1, panel = "Tissue QC") {
     #ggplot2::labs(title=main) +
     ggplot2::xlim(c(-0.5,1.5)) +
     # Put the text in the middle of the donut.
-    ggplot2::annotate(geom = 'text', x = -0.5, y = 1, label = panel, size=4)
+    ggplot2::annotate(geom = 'text', x = -0.5, y = 1, label = panel_name, size=4)
 
 }
 
