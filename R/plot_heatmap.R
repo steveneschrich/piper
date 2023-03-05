@@ -18,7 +18,7 @@ protein_distance <- function(x,y) {
   # Base case, if only one element is in common you cannot compute the distance,
   # so we take the distance as the number of elements (max distance possible).
   # Or the limit of Partial Distance Strategy (N/N-NB).
-  if (nb < 2 ) return(n)
+  if (n-nb < 2 ) return(n)
 
   # Otherwise, compute distance dropping observations
   d <- 1 - stats::cor(x, y, use="pairwise.complete.obs")
@@ -29,25 +29,33 @@ protein_distance <- function(x,y) {
 
 #' Title
 #'
-#' @param .x
-#' @param pnum
+#' @param sample
+#' @param reference
 #' @param panel
 #' @return
 #' @export
 #' @importFrom rlang .data
 #' @examples
-plot_heatmap<-function(.x, pnum=1, panel="Tissue QC") {
+plot_heatmap<-function(sample, reference, panel) {
+  #.x, pnum=1, panel="Tissue QC") {
+  # Checking input parameters
+  assertthat::assert_that(methods::is(reference, "SummarizedExperiment"))
+  assertthat::assert_that(methods::is(sample, "SummarizedExperiment"))
 
-  .x <- .x[which_targets(.x, panel),]
+  assertthat::assert_that(is.list(panel))
+  assertthat::assert_that(utils::hasName(panel,"markers"))
+  assertthat::assert_that(length(panel$markers)>0)
 
-  if ( is.character(pnum))
-    pnum <- which(Biobase::sampleNames(.x) %in% pnum)
+  # Panel: Select the specific panel to plot
+  markers <- match_markers(panel$markers, reference)
 
+  # Subset the sample/reference data
+  sample <- sample[markers,]
+  reference <- reference[markers,]
 
   ca <- ComplexHeatmap::columnAnnotation(
-
-    subtype = .x$subtype,
-    laterality = .x$laterality,
+    subtype = c(sample$subtype, reference$subtype),
+    laterality = c(sample$laterality, reference$laterality),
     annotation_name_gp = grid::gpar(fontsize= 8),
     col = list(
       "subtype" = c("Inflamed" = "red3", "Mixed"="purple", "Redox"="orange"),
@@ -56,16 +64,20 @@ plot_heatmap<-function(.x, pnum=1, panel="Tissue QC") {
 
   )
 
-  pt_split <- rep("reference",ncol(.x))
-  pt_split[pnum]<-"target"
+  pt_split <- c("target",rep("reference",ncol(reference)))
 
-  x<-t(scale(t(Biobase::exprs(.x))))
+  x <- cbind(
+    SummarizedExperiment::assay(sample),
+    SummarizedExperiment::assay(reference)
+  )
+
+  x<-t(scale(t(x)))
   h <- ComplexHeatmap::Heatmap(
     x,
     clustering_distance_rows = protein_distance,
     clustering_distance_columns = protein_distance,
     cluster_rows=FALSE,
-    row_split = stringr::str_wrap(Biobase::fData(.x)$Subcategory,10),
+    row_split = stringr::str_wrap(rep(panel$name,nrow(x)),10),
     row_names_gp = grid::gpar(fontsize = 6),
     column_names_gp = grid::gpar(fontsize = 6),
     row_gap = grid::unit(2, "mm"),
