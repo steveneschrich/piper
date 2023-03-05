@@ -37,7 +37,7 @@ protein_distance <- function(x,y) {
 #' @importFrom rlang .data
 #' @examples
 plot_heatmap<-function(sample, reference, panel) {
-  #.x, pnum=1, panel="Tissue QC") {
+
   # Checking input parameters
   assertthat::assert_that(methods::is(reference, "SummarizedExperiment"))
   assertthat::assert_that(methods::is(sample, "SummarizedExperiment"))
