@@ -2,13 +2,17 @@
 % Please edit documentation in R/plot_lollipop.R
 \name{plot_lollipop}
 \alias{plot_lollipop}
-\title{Title}
+\title{Create a lollipop plot of markers vs reference}
 \usage{
-plot_lollipop(.x, pnum = 1, panel = "Tissue QC")
+plot_lollipop(sample, reference, panel)
 }
 \arguments{
-\item{panel}{}
+\item{sample}{A sample SummarizedExperiment}
+
+\item{reference}{A reference population}
+
+\item{panel}{A panel (list with name and markers)}
 }
 \description{
-Title
+Create a lollipop plot of markers vs reference
 }
