@@ -103,9 +103,14 @@ impute_missing_with_values <- function(x, values, offset = 0) {
 
   values <- values + offset
 
+  # Use coalesce to replace NA with values
   xp <- apply(SummarizedExperiment::assay(x), 2, function(.x) {
     dplyr::coalesce(.x, values)
   })
+
+  # The rownames are dropped when replacement is made, so reset
+  # rownames,
+  rownames(xp) <- rownames(x)
 
   xp
 }

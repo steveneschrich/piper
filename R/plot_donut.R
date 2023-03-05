@@ -20,12 +20,11 @@ plot_donut <- function(sample, reference,  panel=NULL) {
   if (is.null(panel))
     panel <- list("Random"=base::sample(rownames(reference),5))
   assertthat::assert_that(is.list(panel))
-  assertthat::assert_that(length(panel[[1]])>0)
-  assertthat::assert_that(all(is.numeric(panel[[1]])) || all(panel[[1]] %in% rownames(reference)))
+  assertthat::assert_that(utils::hasName(panel,"markers"))
+
 
   # Panel: Select the specific panel to plot
-  markers <- match_markers(panel[[1]], reference)
-  panel_name <- names(panel)[1]
+  markers <- match_markers(panel$markers, reference)
 
   # Subset the sample/reference data
   sample <- sample[markers,]
@@ -58,7 +57,7 @@ plot_donut <- function(sample, reference,  panel=NULL) {
     #ggplot2::labs(title=main) +
     ggplot2::xlim(c(-0.5,1.5)) +
     # Put the text in the middle of the donut.
-    ggplot2::annotate(geom = 'text', x = -0.5, y = 1, label = panel_name, size=4)
+    ggplot2::annotate(geom = 'text', x = -0.5, y = 1, label = panel$name, size=4)
 
 }
 
