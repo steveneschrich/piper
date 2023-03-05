@@ -88,7 +88,8 @@ plot_heatmap<-function(sample, reference, panel) {
     show_heatmap_legend = FALSE,
     show_row_names = TRUE,
     row_names_side="right",
-    column_split =pt_split
+    column_split =pt_split,
+    cluster_column_slices = FALSE # Do not cluster the column split (target)
 
   )
 
