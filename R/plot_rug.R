@@ -3,34 +3,28 @@
 #' @description Provide slider-style readout of proteomics panel
 #'  components.
 #'
-#' @param .x The [Biobase::ExpressionSet] to visualization
-#' @param pnum For multi-sample datasets, the sample to visualize
-#' (should be in `colnames(.x)` or a numeric index/column number).
-#' @param panel The panel to visualize
+#' @param sample A SummarizedExperiment representing a single sample
+#' @param reference A SummarizedExperiment representing the reference population
+#' @param panel The panel to visualize (list consisting of name and markers).
 #'
 #' @return A [patchwork::patchwork()] panel of graphs representing a rug plot.
 #' @export
-#' @importFrom magrittr %>%
 #' @examples
 #' \dontrun{
-#' plot_rug(lscc, pnum = 1, panel = "Tissue QC")
+#' plot_rug(lscc[,1], lscc , panel = panels$ADC)
 #' }
 plot_rug <- function(sample, reference,  panel=NULL) {
   # Checking input parameters
-  assertthat::assert_that(is(reference, "SummarizedExperiment"))
-  assertthat::assert_that(is(sample, "SummarizedExperiment"))
+  assertthat::assert_that(methods::is(reference, "SummarizedExperiment"))
+  assertthat::assert_that(methods::is(sample, "SummarizedExperiment"))
   assertthat::assert_that(nrow(sample) == nrow(reference))
 
-  # Handle the panel input
-  if (is.null(panel))
-    panel <- list("Random"=sample(rownames(reference),5))
   assertthat::assert_that(is.list(panel))
-  assertthat::assert_that(length(panel[[1]])>0)
-  assertthat::assert_that(all(is.numeric(panel[[1]])) || all(panel[[1]] %in% rownames(reference)))
+  assertthat::assert_that(utils::hasName(panel, "markers"))
 
   # Panel: Select the specific panel to plot
-  markers <- match_markers(panel[[1]], reference)
-  panel_name <- names(panel)[1]
+  markers <- match_markers(panel$markers, reference)
+  panel_name <- panel$name
 
   # Subset the sample/reference data
   sample <- sample[markers,]
@@ -46,20 +40,20 @@ plot_rug <- function(sample, reference,  panel=NULL) {
 
 
 
-  sample <- SummarizedExperiment::assays(sample)$abundance |>
+  sample_table <- SummarizedExperiment::assays(sample)$abundance |>
     tibble::as_tibble(rownames="Protein_Peptide") |>
     magrittr::set_colnames(c("Protein_Peptide","sample")) |>
     tibble::deframe()
 
-  pl <- sapply(names(sample), function(n) {
+  pl <- sapply(names(sample_table), function(n) {
 
     mydf <- data.frame(x=tidyr::replace_na(SummarizedExperiment::assay(reference)[n,],0))
     p <- ggplot2::ggplot(mydf,ggplot2::aes(x=x)) +
       ggplot2::geom_rug(length=grid::unit(1,"npc")) +
       ggplot2::coord_cartesian(ylim=c(0,1),clip = 'off') +
 
-      ggplot2::geom_point(ggplot2::aes(x=sample[n],y=c(-0.01)),shape=24, fill="red",size=4) +
-      ggplot2::geom_point(ggplot2::aes(x=sample[n],y=c(1.01)), shape=25,
+      ggplot2::geom_point(ggplot2::aes(x=sample_table[n],y=c(-0.01)),shape=24, fill="red",size=4) +
+      ggplot2::geom_point(ggplot2::aes(x=sample_table[n],y=c(1.01)), shape=25,
                           fill="red",size=4) +
       ggplot2::xlab("") +
       ggplot2::ylab(n) +

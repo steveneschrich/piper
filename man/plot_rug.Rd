@@ -7,12 +7,11 @@
 plot_rug(sample, reference, panel = NULL)
 }
 \arguments{
-\item{panel}{The panel to visualize}
+\item{sample}{A SummarizedExperiment representing a single sample}
 
-\item{.x}{The \link[Biobase:class.ExpressionSet]{Biobase::ExpressionSet} to visualization}
+\item{reference}{A SummarizedExperiment representing the reference population}
 
-\item{pnum}{For multi-sample datasets, the sample to visualize
-(should be in \code{colnames(.x)} or a numeric index/column number).}
+\item{panel}{The panel to visualize (list consisting of name and markers).}
 }
 \value{
 A \code{\link[patchwork:patchwork-package]{patchwork::patchwork()}} panel of graphs representing a rug plot.
@@ -23,6 +22,6 @@ components.
 }
 \examples{
 \dontrun{
-plot_rug(lscc, pnum = 1, panel = "Tissue QC")
+plot_rug(lscc[,1], lscc , panel = panels$ADC)
 }
 }
