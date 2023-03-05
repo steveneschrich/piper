@@ -2,13 +2,13 @@
 % Please edit documentation in R/panels.R
 \name{calculate_panel_statistics}
 \alias{calculate_panel_statistics}
-\title{Title}
+\title{Calculate statistics for a given panel}
 \usage{
-calculate_panel_statistics(.x)
+calculate_panel_statistics(.x, panel)
 }
 \arguments{
-\item{.x}{}
+\item{panel}{A assay panel, or a list with (name,markers)}
 }
 \description{
-Title
+Calculate statistics for a given panel
 }

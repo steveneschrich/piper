@@ -1,45 +1,4 @@
-#' Title
-#'
-#' @param .x
-#' @param pnum
-#' @param panel
-#' @param use_na
-#' @param use_percent
-#'
-#' @return
-#' @export
-#' @importFrom rlang .data
-#' @importFrom magrittr %>%
-#' @examples
-get_sample_statistics <- function(.x, pnum = 1, panel = NA, use_na = TRUE,
-                                       use_percent = FALSE) {
-  stopifnot(class(.x) %in% c("ExpressionSet"))
 
-
-  s <- get_sample(.x, pnum, panel, use_na) %>%
-    # Join with summary information to create the percent
-    #  dplyr::filter(`Protein Symbol` %in% c("ACTA2","ALB","ACTB","HBA1","HBB","LMNA")) %>%
-    # NB: FIX THIS ABOVE.
-    dplyr::left_join(calculate_panel_statistics(.x), by="Protein_Peptide")
-
-
-  # Old code, to use the percent of total expression not quantile.
-  if ( use_percent ) {
-    # Then calculate the individual expression out of max expression.
-    s<- s %>% dplyr::mutate(Percent = .data$Patient / .data$MaxExpression)
-
-  } else {
-    # New code, calculate the percentile of the specific patient's measurement.
-    s <- s %>% dplyr::mutate(Percent = purrr::map2_dbl(.data$ECDF, .data$Patient, ~.x(.y)))
-  }
-
-
-  # Some will be NA, use 0 in this instance
-  tidyr::replace_na(s, list(Percent=0))
-
-
-
-}
 
 
 #' Title

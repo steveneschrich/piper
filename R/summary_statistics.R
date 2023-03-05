@@ -18,11 +18,6 @@ summary_statistics_table <- function(sample, reference,  panels) {
     assertthat::assert_that(is.list(panels))
     assertthat::assert_that(length(panels)>0)
 
-    # Create a panel annotation file
-    panel_annotation <- panels |>
-      tibble::enframe(name = "Panel", value = "Marker") |>
-      tidyr::unchop(Marker)
-
 
     # Panel: Select the specific markers to plot (all markers in sample)
     markers <- rownames(sample)
@@ -34,9 +29,10 @@ summary_statistics_table <- function(sample, reference,  panels) {
     # Build the output table.
     output_table <- tibble::tibble(
       Markers = markers,
-      Panel = annotate_markers_with_panels(markers, panel_annotation),
-      `Expression` = SummarizedExperiment::assay(sample),
-      `Expression Percentile` = row_percent(sample, SummarizedExperiment::rowData(reference)$ecdf),
+      # This appears to be make a list of panels that the marker is part of
+      Panel = markers_in_panels(markers, panels),
+      `Expression` = SummarizedExperiment::assay(sample)[,1],
+      `Expression Percentile` = row_percent(sample, SummarizedExperiment::rowData(reference)$ecdf)[,1],
       `Reference Minimum Expression` = row_min(reference),
       `Reference Mean Expression` = row_mean(reference),
       `Reference Median Expression` = row_median(reference),
@@ -46,26 +42,7 @@ summary_statistics_table <- function(sample, reference,  panels) {
   output_table
 }
 
-#' Title
-#'
-#' @param markers
-#' @param panels
-#'
-#' @return
-#' @export
-#'
-#' @examples
-annotate_markers_with_panels <- function(markers, panels) {
-  assertthat::assert_that(is.character(markers))
-  assertthat::assert_that(is.data.frame(panels))
-  assertthat::assert_that(hasName(panels, c("Panel","Marker")))
 
-  dplyr::left_join(
-    tibble::enframe(markers, name=NULL, value = "Marker"),
-    panels,
-    by = "Marker"
-  ) |>
-    tidyr::chop(Panel) |>
-    dplyr::pull(Panel) |>
-    purrr::map_chr(~stringr::str_c(.x, collapse=", "))
-}
+
+
+
