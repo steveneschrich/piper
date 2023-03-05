@@ -32,22 +32,18 @@ plot_lollipop <- function(sample, reference, panel) {
   }
 
 
-    # Note sure why this is here
-    #dplyr::filter(Subcategory %in% c("Cancer Antigens","CDK","MAPK","RTK","PI3K/AKT/MTOR","Tissue QC")) |>
-    dplyr::mutate(Protein_Peptide=stringr::str_replace_all(.data$Protein_Peptide, "_","\n"))
-
-    gdf <- tibble::tibble(
-      assay_id = rownames(reference),
-      assay_label = stringr::str_replace(rev_label(.data$assay_id), "_","\n"),
-      min = row_min(reference),
-      max = row_max(reference),
-      target = tidyr::replace_na(SummarizedExperiment::assay(sample)[,1],0),
-      percentile =  row_percent(
-        sample,
-        ecdfs = SummarizedExperiment::rowData(reference)$ecdf,
-        use_na=FALSE
-      )[,1]
-    )
+  gdf <- tibble::tibble(
+    assay_id = rownames(reference),
+    assay_label = stringr::str_replace(rev_label(assay_id), "_","\n"),
+    min = row_min(reference),
+    max = row_max(reference),
+    target = tidyr::replace_na(SummarizedExperiment::assay(sample)[,1],0),
+    percentile =  row_percent(
+      sample,
+      ecdfs = SummarizedExperiment::rowData(reference)$ecdf,
+      use_na=FALSE
+    )[,1]
+  )
 
   # Make the plot
   p<-ggplot2::ggplot(
