@@ -21,7 +21,6 @@ Imports:
     ComplexHeatmap,
     dplyr,
     ggplot2,
-    ggradar,
     logger,
     magrittr,
     matrixStats,
@@ -35,7 +34,6 @@ Imports:
     stringr,
     SummarizedExperiment,
     tibble,
-    tidyr,
-    tidyselect
+    tidyr
 Remotes:
-  ricardo-bion/ggradar
+

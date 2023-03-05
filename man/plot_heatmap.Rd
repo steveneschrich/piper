@@ -4,7 +4,7 @@
 \alias{plot_heatmap}
 \title{Title}
 \usage{
-plot_heatmap(.x, pnum = 1, panel = "Tissue QC")
+plot_heatmap(sample, reference, panel)
 }
 \description{
 Title

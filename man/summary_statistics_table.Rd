@@ -7,7 +7,14 @@
 summary_statistics_table(sample, reference, panels)
 }
 \arguments{
-\item{panel}{}
+\item{sample}{A sample to calculate relative to}
+
+\item{reference}{A reference population}
+
+\item{panels}{A list of panels to consider when calculating}
+}
+\value{
+A table of summary statistics by assay
 }
 \description{
 Title

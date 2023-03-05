@@ -1,17 +1,18 @@
 #' Title
 #'
-#' @param .x
-#' @param pnum
-#' @param panel
+#' @param sample A sample to calculate relative to
+#' @param reference A reference population
+#' @param panels A list of panels to consider when calculating
 #'
-#' @return
+#' @return A table of summary statistics by assay
 #' @export
 #'
+#' @importFrom methods is
 #' @examples
 summary_statistics_table <- function(sample, reference,  panels) {
     # Checking input parameters
-    assertthat::assert_that(is(reference, "SummarizedExperiment"))
-    assertthat::assert_that(is(sample, "SummarizedExperiment"))
+    assertthat::assert_that(methods::is(reference, "SummarizedExperiment"))
+    assertthat::assert_that(methods::is(sample, "SummarizedExperiment"))
     assertthat::assert_that(nrow(sample) == nrow(reference))
 
     # Panels needs to be one or more panels annotating the markers in reference/sample

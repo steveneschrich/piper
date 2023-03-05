@@ -213,7 +213,7 @@ row_ecdf <- function(x) {
   assertthat::assert_that(methods::is(x, "SummarizedExperiment"))
 
   apply(SummarizedExperiment::assay(x), 1, function(v) {
-    ecdf(v)
+    stats::ecdf(v)
   })
 
 }

@@ -92,6 +92,7 @@ label_pad <- function( ..., extra_width=12) {
 #'  of the input assay fields.
 #' @export
 #'
+#' @importFrom rlang .data
 #' @examples
 #' \dontrun{
 #' label_format("K2C5_LAELEEALQK")
@@ -99,8 +100,10 @@ label_pad <- function( ..., extra_width=12) {
 #' }
 label_format <- function(s) {
   split_assay_id(s) |>
-    dplyr::mutate(label = purrr::pmap_chr(list(Protein, Peptide), label_pad)) |>
-    dplyr::pull(label)
+    dplyr::mutate(
+      label = purrr::pmap_chr(list(.data$Protein, .data$Peptide),
+                              label_pad)) |>
+    dplyr::pull("label")
 
 }
 
