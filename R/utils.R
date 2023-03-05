@@ -1,17 +1,23 @@
-clean_assay_name <- function(s) {
-  stringr::str_replace_all(s, "_","\n")
-}
 
-
-#' Title
+#' Return markers present in the experiment
 #'
-#' @param marker_list
-#' @param reference
+#' @description Given a matrix of assay data, determine the intersection
+#'  of markers and the assay data. Note that a numeric list can be
+#'  used for markers, or the actual names.
 #'
-#' @return
+#' @param markers A list of markers, some of which may be in the
+#'  experiment object.
+#' @param reference A matrix of assay measurements with rownames that
+#' may include the marker list.
+#'
+#' @return The markers that are present in the reference.
 #' @export
 #'
 #' @examples
+#' \dontrun{
+#' match_markers(c("Sepal.Length","NotThere"), t(iris))
+#' [1] "Sepal.Length"
+#' }
 match_markers <- function(markers, reference) {
 
   assertthat::assert_that(is.vector(markers))
@@ -115,9 +121,10 @@ label_format <- function(s) {
 #' split_assay_id("K2C7_SAYGGPVGAGIR")
 #' }
 split_assay_id <- function(s) {
-  stringi::stri_split_fixed(s, "_", 2, simplify = TRUE) |>
-    magrittr::set_colnames(c("Protein","Peptide")) |>
-    tibble::as_tibble()
+  s <- stringi::stri_split_fixed(s, "_", 2, simplify = TRUE)
+  colnames(s) <- c("Protein","Peptide")
+
+  tibble::as_tibble(s)
 }
 
 

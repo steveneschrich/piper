@@ -2,13 +2,28 @@
 % Please edit documentation in R/utils.R
 \name{match_markers}
 \alias{match_markers}
-\title{Title}
+\title{Return markers present in the experiment}
 \usage{
 match_markers(markers, reference)
 }
 \arguments{
-\item{reference}{}
+\item{markers}{A list of markers, some of which may be in the
+experiment object.}
+
+\item{reference}{A matrix of assay measurements with rownames that
+may include the marker list.}
+}
+\value{
+The markers that are present in the reference.
 }
 \description{
-Title
+Given a matrix of assay data, determine the intersection
+of markers and the assay data. Note that a numeric list can be
+used for markers, or the actual names.
+}
+\examples{
+\dontrun{
+match_markers(c("Sepal.Length","NotThere"), t(iris))
+[1] "Sepal.Length"
+}
 }
