@@ -4,7 +4,7 @@
 \alias{plot_donut}
 \title{Title}
 \usage{
-plot_donut(.x, pnum = 1, panel = "Tissue QC")
+plot_donut(sample, reference, panel = NULL)
 }
 \arguments{
 \item{panel}{}

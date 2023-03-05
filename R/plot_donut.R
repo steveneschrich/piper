@@ -10,15 +10,15 @@
 #' @importFrom magrittr %>%
 #'
 #' @examples
-plot_donut <- function(patient, reference,  panel=NULL) {
+plot_donut <- function(sample, reference,  panel=NULL) {
   # Checking input parameters
   assertthat::assert_that(is(reference, "SummarizedExperiment"))
-  assertthat::assert_that(is(patient, "SummarizedExperiment"))
-  assertthat::assert_that(nrow(patient) == nrow(reference))
+  assertthat::assert_that(is(sample, "SummarizedExperiment"))
+  assertthat::assert_that(nrow(sample) == nrow(reference))
 
   # Handle the panel input
   if (is.null(panel))
-    panel <- list("Random"=sample(rownames(reference),5))
+    panel <- list("Random"=base::sample(rownames(reference),5))
   assertthat::assert_that(is.list(panel))
   assertthat::assert_that(length(panel[[1]])>0)
   assertthat::assert_that(all(is.numeric(panel[[1]])) || all(panel[[1]] %in% rownames(reference)))
@@ -27,19 +27,20 @@ plot_donut <- function(patient, reference,  panel=NULL) {
   markers <- match_markers(panel[[1]], reference)
   panel_name <- names(panel)[1]
 
-  # Subset the patient/reference data
-  patient <- patient[markers,]
+  # Subset the sample/reference data
+  sample <- sample[markers,]
   reference <- reference[markers,]
 
   # Statistics: We plot the percent of max abundance in the radar plot.
-  SummarizedExperiment::assays(patient)$abundance <- context_zero_markers(patient)
+  SummarizedExperiment::assays(sample)$abundance <- impute_missing_with_values(sample, 0)
 
-  sample <- SummarizedExperiment::assays(patient)$abundance |>
+
+  sample <- SummarizedExperiment::assays(sample)$abundance |>
     tibble::as_tibble(rownames="Protein_Peptide") |>
-    magrittr::set_colnames(c("Protein_Peptide","Patient"))
+    magrittr::set_colnames(c("Protein_Peptide","sample"))
 
 
-  ggplot2::ggplot(sample, ggplot2::aes(x=1, y=Patient, label=Protein_Peptide, fill=Protein_Peptide)) +
+  ggplot2::ggplot(sample, ggplot2::aes(x=1, y=sample, label=Protein_Peptide, fill=Protein_Peptide)) +
     ggplot2::geom_col() +
     ggplot2::coord_polar(theta="y") +
     #geom_text(
@@ -61,4 +62,4 @@ plot_donut <- function(patient, reference,  panel=NULL) {
 
 }
 
-globalVariables(c("Patient","Protein_Peptide"))
+globalVariables(c("sample","Protein_Peptide"))

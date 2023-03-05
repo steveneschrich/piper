@@ -4,7 +4,7 @@
 #'  components.
 #'
 #' @param .x The [Biobase::ExpressionSet] to visualization
-#' @param pnum For multi-patient datasets, the patient to visualize
+#' @param pnum For multi-sample datasets, the sample to visualize
 #' (should be in `colnames(.x)` or a numeric index/column number).
 #' @param panel The panel to visualize
 #'
@@ -15,11 +15,11 @@
 #' \dontrun{
 #' plot_rug(lscc, pnum = 1, panel = "Tissue QC")
 #' }
-plot_rug <- function(patient, reference,  panel=NULL) {
+plot_rug <- function(sample, reference,  panel=NULL) {
   # Checking input parameters
   assertthat::assert_that(is(reference, "SummarizedExperiment"))
-  assertthat::assert_that(is(patient, "SummarizedExperiment"))
-  assertthat::assert_that(nrow(patient) == nrow(reference))
+  assertthat::assert_that(is(sample, "SummarizedExperiment"))
+  assertthat::assert_that(nrow(sample) == nrow(reference))
 
   # Handle the panel input
   if (is.null(panel))
@@ -32,17 +32,23 @@ plot_rug <- function(patient, reference,  panel=NULL) {
   markers <- match_markers(panel[[1]], reference)
   panel_name <- names(panel)[1]
 
-  # Subset the patient/reference data
-  patient <- patient[markers,]
+  # Subset the sample/reference data
+  sample <- sample[markers,]
   reference <- reference[markers,]
 
-  # Statistics: We plot the percent of max abundance in the radar plot.
-  SummarizedExperiment::assays(patient)$abundance <- context_floored_markers(patient, reference)
+  # Statistics: We plot the percent of max abundance in the radar plot. We use the minimum value of the reference
+  # set (offset by -0.1, to show it is lower than anything else) if the sample value is missing.
+  SummarizedExperiment::assays(sample)$abundance <- impute_missing_with_values(
+    sample,
+    values = row_min(reference),
+    offset = -0.1
+  )
 
 
-  sample <- SummarizedExperiment::assays(patient)$abundance |>
+
+  sample <- SummarizedExperiment::assays(sample)$abundance |>
     tibble::as_tibble(rownames="Protein_Peptide") |>
-    magrittr::set_colnames(c("Protein_Peptide","Patient")) |>
+    magrittr::set_colnames(c("Protein_Peptide","sample")) |>
     tibble::deframe()
 
   pl <- sapply(names(sample), function(n) {

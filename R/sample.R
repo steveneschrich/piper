@@ -80,3 +80,20 @@ get_sample <- function(.x, pnum = 1, panel = NA, use_na = TRUE) {
 
   res
 }
+
+# How about make_sampleref_set(sample, ref). How much does it take to
+# create it, calculate the statistics and go? Assuming ref is precomputed. You'd
+# somehow need some extra stuff.
+
+import_sample <- function(.x) {
+  # Is it a vector of measurements with names?
+  # Check nrow(.x) = nrow(reference)
+  # Check rownames(.x) = rownames(reference)
+  #
+}
+
+import_reference <- function(.x) {
+  # No idea.
+  # Calculate statistics, min, max
+
+}

@@ -2,20 +2,29 @@
 % Please edit documentation in R/plot_radar.R
 \name{plot_radar}
 \alias{plot_radar}
-\title{Title}
+\title{Plot assay results using radar plot}
 \usage{
-plot_radar(
-  .x,
-  pnum = 1,
-  panel = "Tissue QC",
-  use_percent = FALSE,
-  peptide_list = NULL,
-  axis.label.size = 5
-)
+plot_radar(sample, reference, panel = NULL, axis.label.size = 4)
 }
 \arguments{
-\item{peptide_list}{}
+\item{sample}{A SummarizedExperiment object for the sample}
+
+\item{reference}{A SummarizedExperiment object representing the reference population.}
+
+\item{panel}{A panel list (markers, name, category)}
+}
+\value{
+A \code{\link[plotly:plot_ly]{plotly::plot_ly()}} radar plot representing the specified
+panel for a target sample against a reference population.
 }
 \description{
-Title
+Plot an assay panel result for a sample against a reference
+set using a radar plot.
+}
+\examples{
+\dontrun{
+plot_radar(lscc[,1],lscc,
+  panel = list(name="ADC",markers=list("PSCA_AVG","TACD2_AAG"),
+  category = "Cell Surface, RTKs & ADC Targets"))
+}
 }

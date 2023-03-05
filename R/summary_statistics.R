@@ -8,13 +8,13 @@
 #' @export
 #'
 #' @examples
-summary_statistics_all <- function(patient, reference,  panels) {
+summary_statistics_table <- function(sample, reference,  panels) {
     # Checking input parameters
     assertthat::assert_that(is(reference, "SummarizedExperiment"))
-    assertthat::assert_that(is(patient, "SummarizedExperiment"))
-    assertthat::assert_that(nrow(patient) == nrow(reference))
+    assertthat::assert_that(is(sample, "SummarizedExperiment"))
+    assertthat::assert_that(nrow(sample) == nrow(reference))
 
-    # Panels needs to be one or more panels annotating the markers in reference/patient
+    # Panels needs to be one or more panels annotating the markers in reference/sample
     assertthat::assert_that(is.list(panels))
     assertthat::assert_that(length(panels)>0)
 
@@ -25,31 +25,22 @@ summary_statistics_all <- function(patient, reference,  panels) {
 
 
     # Panel: Select the specific markers to plot (all markers in sample)
-    markers <- rownames(patient)
+    markers <- rownames(sample)
 
-    # Subset the patient/reference data
-    patient <- patient[markers,]
+    # Subset the sample/reference data
+    sample <- sample[markers,]
     reference <- reference[markers,]
 
     # Build the output table.
     output_table <- tibble::tibble(
       Markers = markers,
       Panel = annotate_markers_with_panels(markers, panel_annotation),
-      `Expression` = SummarizedExperiment::assay(patient)[markers,],
-      `Expression Quantile` = purrr::map_dbl(markers, function(m) {
-        stats::ecdf(SummarizedExperiment::assay(reference)[m,])(
-          SummarizedExperiment::assay(patient)[m,]
-        )
-      }),
-      t(
-        apply(SummarizedExperiment::assay(reference), 1, function(v) {
-          c(
-            `Reference Minimum Expression` = min(v,na.rm=T),
-            `Reference Mean Expression` = mean(v, na.rm=T),
-            `Reference Maximum Expression` = max(v, na.rm=T)
-          )
-        })
-      )
+      `Expression` = SummarizedExperiment::assay(sample),
+      `Expression Percentile` = row_percent(sample, SummarizedExperiment::rowData(reference)$ecdf),
+      `Reference Minimum Expression` = row_min(reference),
+      `Reference Mean Expression` = row_mean(reference),
+      `Reference Median Expression` = row_median(reference),
+      `Reference Maximum Expression` = row_max(reference)
     )
 
   output_table

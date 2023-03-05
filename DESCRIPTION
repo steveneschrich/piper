@@ -14,19 +14,26 @@ Description: Targeted proteomics panels can be used for clinical and translation
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.2.1
+RoxygenNote: 7.2.3
 Imports: 
+    assertthat,
     Biobase,
     ComplexHeatmap,
     dplyr,
     ggplot2,
     ggradar,
+    logger,
     magrittr,
+    matrixStats,
+    methods,
     patchwork,
+    plotly,
     purrr,
     rlang,
     stats,
+    stringi,
     stringr,
+    SummarizedExperiment,
     tibble,
     tidyr,
     tidyselect
