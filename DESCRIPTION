@@ -20,6 +20,7 @@ Imports:
     Biobase,
     ComplexHeatmap,
     dplyr,
+    ggiraph,
     ggplot2,
     logger,
     magrittr,
