@@ -21,7 +21,7 @@
 #'   category = "Cell Surface, RTKs & ADC Targets"))
 #' }
 plot_radar <- function(sample, reference, panel=NULL,
-                       axis.label.size=4) {
+                       axis.label.size=4, show_title=FALSE) {
 
   # Checking input parameters
   assertthat::assert_that(methods::is(reference, "SummarizedExperiment"))
@@ -29,11 +29,6 @@ plot_radar <- function(sample, reference, panel=NULL,
   assertthat::assert_that(nrow(sample) == nrow(reference))
 
   # Handle the panel input
-  if (is.null(panel))
-    panel <- list(
-      "markers"=sample(rownames(reference),5),
-      category = "Random", name = "Random"
-      )
   assertthat::assert_that(is.list(panel))
   assertthat::assert_that(utils::hasName(panel,"markers"))
   assertthat::assert_that(length(panel$markers)>0)
@@ -73,7 +68,8 @@ plot_radar <- function(sample, reference, panel=NULL,
   # repeated row seems to allow that.
   qc <- dplyr::bind_rows(qc, dplyr::slice(qc, 1))
 
-  p <- radar_init_plot(qc, title = paste(panel$name,panel$category,sep="\n")) |>
+  p <- radar_init_plot(qc, title =
+                         ifelse(show_title, paste(panel$name,panel$category,sep="\n"),"")) |>
     radar_add_assay(q=~percentile, assay=~assay_label, text = ~text)
 
   p

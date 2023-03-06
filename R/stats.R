@@ -49,7 +49,10 @@ row_percent <- function(x, ecdfs, use_na = TRUE) {
     res <- apply(res, 2, function(.x) {tidyr::replace_na(.x, replace = 0)})
 
 
-  as.matrix(res)
+  res <- as.matrix(res)
+  rownames(res) <- rownames(x)
+  colnames(res) <- colnames(x)
+  res
 }
 
 

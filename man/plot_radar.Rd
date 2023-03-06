@@ -4,7 +4,13 @@
 \alias{plot_radar}
 \title{Plot assay results using radar plot}
 \usage{
-plot_radar(sample, reference, panel = NULL, axis.label.size = 4)
+plot_radar(
+  sample,
+  reference,
+  panel = NULL,
+  axis.label.size = 4,
+  show_title = FALSE
+)
 }
 \arguments{
 \item{sample}{A SummarizedExperiment object for the sample}
