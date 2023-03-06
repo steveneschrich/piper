@@ -43,12 +43,13 @@ row_percent <- function(x, ecdfs, use_na = TRUE) {
 
   res <- apply(SummarizedExperiment::assay(x), 2, function(v) {
     purrr::map2_dbl(v, ecdfs, ~.y(.x))
-  })
+  }) |>
+    as.matrix()
   if (!use_na)
     res <- apply(res, 2, function(.x) {tidyr::replace_na(.x, replace = 0)})
 
 
-  res
+  as.matrix(res)
 }
 
 
@@ -216,4 +217,36 @@ row_ecdf <- function(x) {
     stats::ecdf(v)
   })
 
+}
+
+#' Title
+#'
+#' @param sample
+#' @param reference
+#' @param panel
+#'
+#' @return
+#' @export
+#'
+#' @examples
+percentile <- function(sample, reference, panel) {
+  # Checking input parameters
+  assertthat::assert_that(is(reference, "SummarizedExperiment"))
+  assertthat::assert_that(is(sample, "SummarizedExperiment"))
+  assertthat::assert_that(nrow(sample) == nrow(reference))
+
+  assertthat::assert_that(is.list(panel))
+  assertthat::assert_that(utils::hasName(panel,"markers"))
+
+  # Panel: Select the specific panel to plot
+  markers <- match_markers(panel$markers, reference)
+
+  # Subset the sample/reference data
+  sample <- sample[markers,,drop=F]
+  reference <- reference[markers,,drop=F]
+
+  row_percent(
+    sample,
+    ecdfs = SummarizedExperiment::rowData(reference)$ecdf,
+    use_na = FALSE)[,1]
 }

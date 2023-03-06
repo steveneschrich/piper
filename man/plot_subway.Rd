@@ -4,7 +4,7 @@
 \alias{plot_subway}
 \title{Title}
 \usage{
-plot_subway(.x, pnum = 1)
+plot_subway(sample, reference, panels)
 }
 \arguments{
 \item{pnum}{}
