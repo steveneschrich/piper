@@ -8,6 +8,9 @@
 #'
 #' @importFrom stats median
 #' @examples
+#
+
+
 plot_subway <- function(sample, reference, panels) {
 
 
@@ -15,21 +18,21 @@ plot_subway <- function(sample, reference, panels) {
 
   df <- tibble::tribble(
     ~x, ~y, ~panel, ~name, ~percentile,
-    0,2, "Overview", "Biopsies",0,
-    1,1, "Immunologist's Panel", "Immune Hot/Cold",0,
-    2,1, "Immunologist's Panel", "Checkpoint Blockade", percentile(sample, reference, panels$`Immune Checkpoint`) |> median(),
-    3,1, "Immunologist's Panel", "ADC Targets",0,
-    4,1, "Immunologist's Panel", "Cancer Antigens", percentile(sample, reference, panels$`Cancer Antigens`) |> max(),
-    1,2, "Oncologist's Panel", "RTK", percentile(sample, reference, panels$RTK) |> max(),
-    2,2, "Oncologist's Panel", "KRAS G12C",0,
-    3,2, "Oncologist's Panel", "MAPK", percentile(sample, reference, panels$MAPK) |> median(),
-    4,2, "Oncologist's Panel", "CDK", percentile(sample, reference, panels$CDK) |> median(),
-    5,2, "Oncologist's Panel", "PI3K/AKT/MTOR",percentile(sample, reference, panels$`PI3K/AKT/MTOR`) |> median(),
-    1,3, "Molecular Pathologist's Panel", "QC", percentile(sample,reference, panels$`Tissue QC`) |> median(),
-    2,3, "Molecular Pathologist's Panel", "Histology",0,
-    3,3, "Molecular Pathologist's Panel", "EMT",percentile(sample,reference,panels$EMT) |> median(),
-    4,3, "Molecular Pathologist's Panel", "Proliferation", percentile(sample, reference, panels$Proliferation) |> median(),
-    5,3, "Molecular Pathologist's Panel", "Metabolism", percentile(sample, reference, panels$Metabolism) |> median()
+    0,2, "Overview", "Biopsies",eval_score(sample, reference, panels$All),
+    1,1, "Immunologist's Panel", "Immune Hot/Cold",eval_score(sample, reference, panels$`Immune Cells`),
+    2,1, "Immunologist's Panel", "Checkpoint Blockade", eval_score(sample, reference, panels$`Immune Checkpoint`),
+    3,1, "Immunologist's Panel", "ADC Targets",eval_score(sample, reference, panels$`ADC`),
+    4,1, "Immunologist's Panel", "Cancer Antigens", eval_score(sample, reference, panels$`Cancer Antigens`),
+    1,2, "Oncologist's Panel", "RTK",eval_score(sample, reference, panels$RTK),
+    2,2, "Oncologist's Panel", "KRAS G12C",0.5,
+    3,2, "Oncologist's Panel", "MAPK", eval_score(sample, reference, panels$MAPK),
+    4,2, "Oncologist's Panel", "CDK", eval_score(sample, reference, panels$CDK),
+    5,2, "Oncologist's Panel", "PI3K/AKT/MTOR",eval_score(sample, reference, panels$`PI3K/AKT/MTOR`),
+    1,3, "Molecular Pathologist's Panel", "QC", eval_score(sample,reference, panels$`Cellularity QC`),
+    2,3, "Molecular Pathologist's Panel", "Histology",eval_score(sample,reference, panels$Cytokeratins),
+    3,3, "Molecular Pathologist's Panel", "EMT",eval_score(sample,reference,panels$EMT),
+    4,3, "Molecular Pathologist's Panel", "Proliferation", eval_score(sample, reference, panels$Proliferation),
+    5,3, "Molecular Pathologist's Panel", "Metabolism", eval_score(sample, reference, panels$Metabolism)
 
     # Molecular Phenotyping (Path)
     # Cancer Signaling (Oncologist)
@@ -60,19 +63,20 @@ plot_subway <- function(sample, reference, panels) {
     "Oncologist's Panel"="#548235",
     "Molecular Pathologist's Panel"="#2e75b6"
   )
-  p<-ggplot2::ggplot(df, ggplot2::aes(x=x,y=y,col=panel, label = name, fill = percentile)) +
+  p<-ggplot2::ggplot(df, ggplot2::aes(x=x,y=y,col=panel, label = name, fill = percentile, tooltip=percentile)) +
     ggplot2::geom_segment(ggplot2::aes(x=x,y=y,xend=xend,yend=yend, col=panel), data=df_lines, inherit.aes=FALSE,
                           size=4, alpha=0.3) +
     ggplot2::scale_color_manual(values = cpalette) +
-    ggplot2::scale_fill_gradient(low="green",high="red") +
-    ggplot2::geom_point(size=15, shape=21, stroke = 4) +
+    # Color scale for the fill is blue/red.
+    ggplot2::scale_fill_gradient2(low="#0073C2FF",high="#CD534CFF", mid="white", midpoint=0.5) +
+ggiraph::geom_point_interactive(size=15,shape=21, stroke=4) +
+#        ggplot2::geom_point(size=15, shape=21, stroke = 4) +
     #ggrepel::geom_text_repel(point.padding=2) +
     ggplot2::geom_text(nudge_y=0.4) +
     ggplot2::theme_void() +
     ggplot2::theme(legend.position = "none") +
     ggplot2::expand_limits(x=c(-1,6), y=c(0,4))
 
-  #pp<-plotly::ggplotly(p)
   p
 }
 globalVariables(c("x","y","panel","name","xend","yend"))
